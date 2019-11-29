@@ -1,4 +1,9 @@
 # robot_localization目录
+>### 内容：HamRadioDXer
+> ### 编辑：李超
+> ### 
+
+
 ## 1. 状态估计节点
 ### 1.1 ekf定位节点
 ekf_localization_node是一个扩展的卡尔曼滤波器的实现。该方法利用全向运动模型及时预测状态，并利用感知到的传感器数据对预测结果进行修正。
@@ -60,7 +65,7 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 - **传感器**
 
 对于每个传感器，用户需要根据消息类型定义此参数。例如，如果我们定义一个Imu消息源和两个测程消息源，配置将如下所示:
-```
+```xml
 <param name="imu0" value="robot/imu/data"/>
 <param name="odom0" value="wheel_encoder/odometry"/>
 <param name="odom1" value="visual_odometry/odometry"/>
@@ -78,7 +83,7 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 对于上述定义的每个传感器消息，用户必须指定应该将这些消息的哪些变量融合到最终状态估计中。里程测量配置的一个例子可能是这样的:
 
 
-```
+```xml
 <rosparam param="odom0_config">[true,  true,  false,
                                 false, false, true,
                                 true,  false, false,
@@ -88,12 +93,12 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 
 这些布尔值的顺序是X、Y、Z、roll、pitch、yaw、X˙、Y˙、Z˙、roll˙、pitch˙、yaw˙、X¨、Y¨、Z¨。在这个例子中，我们融合了X和Y的位置，偏航角，X˙，和偏航角˙。
 
-==注意==：规范是在传感器的frame_id中完成的，而不是在world_frame或base_link_frame中。有关更多信息，请参阅配置教程。
+**注意**：规范是在传感器的frame_id中完成的，而不是在world_frame或base_link_frame中。有关更多信息，请参阅配置教程。
 - **[sensor]_queue_size**
 
 具体参数：
 
-```
+```shell
 - [~odomN_config] 
 - [~twistN_config]
 - [~imuN_config]
@@ -105,7 +110,7 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 
 具体参数：
 
-```
+```shell
 - [~odomN_differential] 
 - [~imuN_differential]
 - [~poseN_differential]
@@ -121,7 +126,7 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 
 具体参数：
 
-```
+```sh
 - [~odomN_relative] 
 - [~imuN_relative]
 - [~poseN_relative]
@@ -143,7 +148,7 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 以指定的状态启动筛选器。状态是一个15维的双精度向量，其顺序与传感器配置相同。例如，要在(5.0,4.0,3.0)的位置启动机器人，偏航为1.57，线速度为(0.1,0.2,0.3)，您将使用:
 
 
-```
+```xml
 <rosparam param="initial_state">[5.0,  4.0,  3.0,
                                  0.0,  0.0,  1.57,
                                  0.1,  0.2,  0.3,
@@ -160,17 +165,17 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 
 如果为真，状态估计节点将向/diagnostics主题发布诊断消息。这对于调试配置和传感器数据非常有用。
 
-> 高级参数
+> **高级参数**
 - use_control
 
 如果为真，则状态估计节点将侦听geometry_msgs/Twist消息的cmd_vel主题，并使用该主题生成一个加速项。这一项将用于机器人的状态预测。这在某些情况下特别有用，即使在给定状态变量的收敛上有很小的延迟，也会导致应用程序出现问题(例如，在旋转过程中激光雷达发生移位)。默认值为false。
 
 ==注意==：来自IMU的线性加速度数据的存在和包含将当前“覆盖”预测的线性加速度值。
-- 〜**stamped_control **
+- **stamped_control**
 
 如果为true，use_control并且也为true，则查找geometry_msgs / TwistStamped消息，而不是geometry_msgs / Twist消息。
 
-- 〜**control_timeout **
+-  **control_timeout**
 
 如果use_control设置为true且在此时间内没有收到控制命令（以秒为单位），则基于控制的加速项将停止应用。
 
@@ -180,17 +185,17 @@ robot_localization包使用tf2的lookupTransform方法来请求转换。此参�
 控制cmd_vel消息中的哪些变量用于状态预测。这些值的顺序是X˙、Y˙、Z˙、横滚˙、俯仰˙、偏航˙。仅在use_control设置为true时使用。
 
 
-```
+```xml
 <rosparam param="control_config">[true,  false, false,
                                   false, false, true]</rosparam>
 ```
 
-- 〜**acceleration_limits**
+- **acceleration_limits**
 
 你的机器人在每个维度上的加速速度。匹配control_config中的参数顺序。仅在use_control设置为true时使用。
 
 <
-```
+```xml
 rosparam param="acceleration_limits">[1.3, 0.0, 0.0,
                                        0.0, 0.0, 3.2]</rosparam>
 ```
@@ -199,27 +204,27 @@ rosparam param="acceleration_limits">[1.3, 0.0, 0.0,
 
 您的机器人在每个尺寸上减速的速度。匹配中的参数顺序control_config。仅当use_control设置为true时使用。
 
-- 〜**acceleration_gains**
+- **acceleration_gains**
 
 如果您的机器人无法立即达到其加速度极限，则可以通过这些增益来控制允许的变化。仅当use_control设置为true时使用。
 
 
-```
+```xml
 <rosparam  param = “ acceleration_limits” > [ 0.8，0.0，0.0，0.0，0.0，0.9 
                                        ] </ rosparam>
 ```
-- 〜**deceleration_gains**
+- **deceleration_gains**
 
 如果您的机器人无法立即达到其减速极限，则可以通过这些增益来控制允许的变化。仅当use_control设置为true时使用。
 
-> **smooth_lagged_data **
+> **smooth_lagged_data** 
 
 如果您的任何传感器产生的时间戳数据都比最新的过滤器更新早（更明确地说，如果您有滞后的传感器数据源），则将此参数设置为true将在接收到滞后的数据后启用过滤器恢复到滞后测量之前的最后状态，然后处理所有测量直到当前时间。这对于来自需要大量CPU使用量以生成姿态估计值的节点（例如，激光扫描匹配器）进行的测量特别有用，因为它们经常滞后于当前时间。
 
 - **HISTORY_LENGTH**
 如果smooth_lagged_data设置为true，则此参数指定过滤器将保留其状态和测量历史记录的秒数。该值应至少等于滞后测量值与当前时间之间的时间增量。
 
-- **~[sensor]_nodelay**
+- **[sensor]_nodelay**
 
 具体参数：
 - [~odomN_nodelay] 
@@ -229,7 +234,7 @@ rosparam param="acceleration_limits">[1.3, 0.0, 0.0,
 
 如果为true，则设置tcpNoDelay 传输提示。有证据表明，Nagle的算法与及时接收大消息类型（例如nav_msgs / Odometry消息）有关。将输入设置为true会禁用该订户的Nagle算法。默认为false。
 
-- **~[sensor]_threshold（传感器阈值）**
+- **[sensor]_threshold（传感器阈值）**
 
 具体参数：
 
@@ -243,39 +248,39 @@ rosparam param="acceleration_limits">[1.3, 0.0, 0.0,
 
 如果您的数据存在异常值，请使用这些阈值设置（表示为马哈拉诺比斯距离）来控制允许传感器测量距当前车辆状态多远。numeric_limits<double>::max()如果未指定，则每个默认为。
 
-- ~**debug(调试)**
+- **debug(调试)**
 
 布尔标志，指定是否在调试模式下运行。警告：将其设置为true将生成大量数据。数据被写入debug_out_file参数的值。默认为false。
 
-- **〜debug_out_file **
+- **debug_out_file**
 
 如果debug为true，则将调试输出写入其中的文件。
 
-- **〜process_noise_covariance **
+- **process_noise_covariance**
 
 过程噪声协方差（通常表示为Q）用于对滤波算法预测阶段的不确定性建模。调整可能很困难，并且已作为参数公开以方便自定义。可以单独保留此参数，但是通过调整它可以取得更好的结果。通常，相对于输入消息中给定变量的方差，Q值越大，滤波器将收敛到测量值的速度就越快。
 
-- **〜dynamic_process_noise_covariance** 
+- **dynamic_process_noise_covariance** 
 
 如果为true，将process_noise_covariance根据机器人的速度动态缩放。这很有用，例如，当您希望在机器人静止时机器人的估计误差协方差停止增长时。默认为false。
 
-- **〜initial_estimate_covariance** 
+- **initial_estimate_covariance** 
 
 [ 0 ，0 ]X想要将绝对姿态变量的初始协方差值设置为大数。这是因为那些误差将无限制地增长（由于缺少绝对姿态测量来减小误差），并且以大的值开始将不会使状态估计受益。
 
-- **〜reset_on_time_jump **
+- **reset_on_time_jump**
 
 如果设置为true且ros::Time::isSimTime()为true，则当在主题上检测到时间跳回时，过滤器将重置为其未初始化状态。这在处理bag数据时很有用，因为可以在不重新启动节点的情况下重新启动bag。
 
-- **〜predict_to_current_time **
+- **predict_to_current_time**
 
 如果设置为真，过滤预测并纠正了最新的测量（默认）的时间，但现在也可以预测到当前时间步长。
 
-- **〜disabled_at_startup **
+- **disabled_at_startup**
 
 如果设置为true，则不会在启动时运行过滤器。
 
-> 节点的具体参数
+> **节点的具体参数**
 
 标准和高级参数对于中的所有状态估计节点都是通用的robot_localization。本节详细介绍了各自状态估计节点所特有的参数。
 
@@ -311,7 +316,7 @@ set_pose-通过向主题发出geometry_msgs / PoseWithCovarianceStamped消息set
 #  2. navsat转换节点
 navsat_transform_node输入nav_msgs / Odometry消息（通常是ekf_localization_node或的输出ukf_localization_node），包含对机器人航向的准确估计的sensor_msgs / Imu以及包含GPS数据的sensor_msgs / NavSatFix消息作为输入。它会在与您的机器人世界框架一致的坐标中生成测距消息。该值可以直接融合到您的状态估计中。
 
-==注意==：如果将此节点的输出与中的任何状态估计节点融合robot_localization，则应确保该输入的odomN_differential设置为false。
+**注意**：如果将此节点的输出与中的任何状态估计节点融合robot_localization，则应确保该输入的odomN_differential设置为false。
 ## 2.1 参数
 
 - **〜频率**
@@ -330,34 +335,34 @@ navsat_transform_node输入nav_msgs / Odometry消息（通常是ekf_localization
 
 当您向东时，IMU的偏航读数应为0。如果不是，请在此处输入偏移量（desired_value =偏移量+ sensor_raw_value）。例如，如果您的IMU朝北时报告0，就像大多数情况一样，则此参数为pi/2（〜1.5707963）。此参数的版本已更改2.2.1。以前，navsat_transform_node假设IMU面向北时读为0，所以相应地使用yaw_offset。
 
-- 〜**zero_altitude**
+- **zero_altitude**
 
 如果为true，则此节点生成的nav_msgs / Odometry消息的姿态Z值设置为0。
 
-- 〜**publish_filtered_gps**
+- **publish_filtered_gps**
 
 如果为true，navsat_transform_node还将把您的机器人的世界框架（例如map）位置转换回GPS坐标，并在该主题上发布sensor_msgs / NavSatFix消息/gps/filtered。
 
-- 〜**broadcast_utm_transform**
+- **broadcast_utm_transform**
 
 如果为true，navsat_transform_node则将广播UTM网格和输入里程表数据的帧之间的转换。有关更多信息，请参见下面的发布的转换。
 
-- 〜**use_odometry_yaw**
+- **use_odometry_yaw**
 
 如果为true，navsat_transform_node则不会从IMU数据获取标题，而是从输入的里程表消息获取标题。如果您的里程表消息具有在以地球为参考的框架中指定的方向数据（例如，由磁力计生成的数据），则用户应注意仅将其设置为true。另外，如果测距法源是其中的状态估计节点之一robot_localization，则用户应至少将一个绝对方位数据源馈入该节点，并且将_differential和_relative参数设置为false。
 
-- 〜**wait_for_datum**
+-**wait_for_datum**
 
 如果为true，navsat_transform_node将等待从以下任一位置获取数据：
 
 - [该datum参数] 
 - [该set_datum服务]
 
-- 〜**broadcast_utm_transform_as_parent_frame**
+- **broadcast_utm_transform_as_parent_frame**
 
 如果为true，navsat_transform_node将发布utm-> world_frame转换，而不是world_frame-> utm转换。请注意，要发布的转换broadcast_utm_transform还必须设置为true。
 
-- 〜**transform_timeout**
+- **transform_timeout**
 
 此参数指定如果尚不可用转换我们要等待多长时间。如果未设置，则默认为0。值0表示我们只是获取了最新的可用（请参阅tf2实现）转换。
 ## 2.2 订阅的话题
@@ -385,7 +390,7 @@ navsat_transform_node输入nav_msgs / Odometry消息（通常是ekf_localization
 
 此外，它可能会有益于用户查看每种受支持的ROS消息类型的规范：
 
-- nav_msgs /里程表
+- nav_msgs `/里程表`
 - geometry_msgs / PoseWithCovarianceStamped
 - geometry_msgs / TwistWithCovarianceStamped
 - sensor_msgs / Imu
@@ -429,9 +434,9 @@ IMU也可以定位在机器人的“中立”位置以外的位置。例如，�
 - 如果传感器滚动+90度(左侧向上)，Y轴的加速度应该是+9.81米/秒的平方。
 - 如果传感器倾斜+90度(正面朝下)，X轴的读数应该是-9.81米/秒方。
 ### 3.4.3 PoseWithCovarianceStamped¶
-请参阅里程表。
+请参阅里程计
 ### 3.4.4 TwistWithCovarianceStamped
-请参阅里程表
+请参阅里程计
 ## 3.5 常见错误
 - 输入数据不符合REP-103。确保所有的值(特别是方向角)在正确的方向上增加和减少。
 - 不正确的frame_id值。速度数据应该在base_link_frame参数给出的框架中报告，或者在速度数据的frame_id和base_link_frame之间存在转换。
@@ -459,7 +464,7 @@ IMU也可以定位在机器人的“中立”位置以外的位置。例如，�
 ## 4.3 融合不可测量的变量
 让我们从一个例子开始。假设你有一个在平面环境中工作的轮式非完整机器人。你的机器人有一些轮子编码器，用来估计瞬时X速度和绝对姿态信息。此信息在nav_msgs/里程计消息中报告。此外，你的机器人有一个IMU，可以测量转速、车辆姿态和线性加速度。它的数据在sensor_msgs/Imu消息中报告。由于我们是在平面环境中操作的，所以我们将two_d_mode参数设置为true。这将自动归零所有三维变量，如Z，滚，俯仰，它们各自的速度，和Z加速度。我们从这个配置开始:
 
-```
+```xml
 <rosparam param="odom0_config">[true, true, false,
                                 false, false, true,
                                 true, false, false,
@@ -475,7 +480,7 @@ IMU也可以定位在机器人的“中立”位置以外的位置。例如，�
 首先，平面机器人只需要考虑X, Y, X˙，Y˙，X, Y, Y, yaw, yaw˙。然而，这里有几点需要注意。
 1. 对于odom0，我们包括X和Y(在世界坐标系中报告)，偏航，X˙(在体坐标系中报告)，以及偏航˙。但是，除非您的机器人内部使用IMU，否则它很可能只是使用车轮编码器数据来生成其测量值。因此，它的速度、航向和位置数据都来自同一来源。在这种情况下，我们不希望使用所有的值，因为您将重复的信息输入到过滤器中。相反，最好使用速度:
 
-```
+```xml
 <rosparam param="odom0_config">[false, false, false,
                                 false, false, false,
                                 true, false, false,
@@ -491,7 +496,7 @@ IMU也可以定位在机器人的“中立”位置以外的位置。例如，�
 
 2. 接下来，我们注意到我们没有把Y˙融合。乍一看，这是正确的选择，因为我们的机器人不能立即横向移动。但是，如果nav_msgs/Odometry message报告了一个Y˙的0值(并且Y˙的协方差没有被夸大到很大的值)，那么最好将这个值反馈给过滤器。在本例中，测量值为0，表示机器人不可能向该方向移动，因此，测量值为0是完全有效的:
 
-```
+```xml
 <rosparam param="odom0_config">[false, false, false,
                                 false, false, false,
                                 true, true, false,
@@ -510,7 +515,7 @@ IMU也可以定位在机器人的“中立”位置以外的位置。例如，�
 “robot_localization”中的状态估计节点允许用户融合任意数量的传感器。这允许用户使用多个源来测量某些状态向量变量——特别是姿态变量。例如，您的机器人可能从多个imu获取绝对方向信息，或者它可能有多个数据源来估计其绝对位置。在这种情况下，用户有两个选择:
 1. 按原样融合所有绝对位置/方向数据，例如:
 
-```
+```xml
 <rosparam param="imu0_config">[false, false, false,
                                true,  true,  true,
                                false, false, false,
@@ -571,26 +576,26 @@ navsat_transform_node需要三个信息源:机器人当前在其世界框架中�
 该datum参数采用以下形式：
 
 
-```
+```xml
 <rosparam param="datum">[55.944904, -3.186693, 0.0, map, base_link]</rosparam>
 ```
 参数顺序是纬度(以十进制度表示)、经度(以十进制度表示)、标题(以弧度表示)。，为robot_localization状态估计节点中的world_frame参数的值)，为机器人身体帧的frame_id(即，为robot_本地化状态估计节点中的base_link_frame参数的值)。当使用此模式时，机器人将假定您的机器人的世界框架原点位于指定的纬度和经度，且标题为0(东)。
 3. 可以通过set_datum服务和使用robot_localization/SetDatum服务消息手动设置数据。
-> GPS数据
+> **GPS数据**
 
 请==注意==：navsat_transform_node的所有开发都是使用Garmin 18x GPS单元完成的，因此可能有其他单元生成的复杂数据需要处理。
 
 优秀的nmea_navsat_driver包提供了所需的sensor_msgs/NavSatFix消息。这是我们将在本教程中使用的nmea_navsat_driver启动文件:
 
 
-```
+```xml
 <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="navsat" respawn="true">
   <param name="port" value="/dev/ttyUSB0"/>
   <param name="baud" value="19200"/>
 </node>
 ```
 只有当用户没有通过datum参数或set_datum服务手动指定原点时，此信息才有意义。
-> IMU数据
+> **IMU数据**
 
 注意:自2.2.1版以来，navsat_transform_node已经转移到一个标准，其中所有的航向数据都假设从其零点朝东开始。如果您的IMU不符合这个标准，而是报告0时，面向北，您仍然可以使用yaw_offset参数来纠正这个错误。在这种情况下,yaw_offset将π/ 2的值(约1.5707963)。
 
@@ -598,14 +603,14 @@ navsat_transform_node需要三个信息源:机器人当前在其世界框架中�
 
 只有当用户没有通过datum参数或set_datum服务手动指定原点时，此信息才有意义。
 
-> 里程计数据
+> **里程计数据**
 
 这应该是用于融合GPS数据的robot_localization状态估计节点实例的输出。
 ## 6.2.2 配置navsat_transform_node
 下面是我们将在本教程中使用的navsat_transform_node启动文件:
 
 
-```
+```xml
 <launch>
 
   <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true">
@@ -628,7 +633,7 @@ navsat_transform_node需要三个信息源:机器人当前在其世界框架中�
 此时，与robot_localization的集成非常简单。简单地添加这个块到您的状态估计节点启动文件:
 
 
-```
+```shell
 <rosparam param="odomN_config">[true,  true,  false,
                                 false, false, false,
                                 false, false, false,
@@ -656,5 +661,23 @@ REP-105建议使用四种坐标系:base_link、odom、map和earth。base_link是
 现在需要将纬度和经度转换为UTM坐标。UTM网格假设x轴朝东，y轴朝北，z轴指向地面。这符合repo -105所规定的右手坐标系。代表还说，偏航角为0意味着我们正对着x轴向下，偏航是逆时针增加的。navsat_transform_node假设你的标题数据符合这个标准。但是，有两个因素需要考虑:
 
 - IMU驱动程序可能不允许用户应用磁偏角校正因子
-# 7. 软件包robot_localizaion的变更日志
-# 8. 用户提供的教程
+- IMU驱动程序朝北时可能报错0，朝东时可能报错0(即使它的标题正确地增加和减少)。幸运的是，navsat_transform_node提供了两个参数来弥补IMU数据中可能存在的缺陷:magnetic_declination_radians和yaw_offset。参考图1，对于当前正在测量imu_yaw的偏航值的IMU，
+```math
+    yawimu=−ω−offsetyaw+θ
+```
+```math
+    θ=yawimu+ω+offsetyaw
+ ```   
+我们现在有一个旋转`(xUTM yUTM)`和旋转θ,我们可以使用它来创建所需的utm - >映射变换。我们使用转换将所有未来的GPS位置转换为机器人的局部坐标系。如果broadcast_utm_transform参数设置为true，则navsat_transform_node也将广播此转换。
+
+如果您对本教程有任何问题，请在answers.ros.org上随意提问。
+
+# 7. 用户输入的教程
+下面是用户提供的robot_localization教程列表!
+## 7.1 教程
+> **ros-sensor-fusion-tutorial（ros传感器融合教程**）
+
+一个全面的端到端的教程，为传感器融合设置robot_localization，以及运行必要的概念。(包括一个使用超声波信标设置它的实际示例!)
+> **Kapernikov: ROS robot_localization软件包**
+
+一旦您了解了robot_localization包的工作方式，它的文档就非常清楚了。然而，它缺少一个实际操作的教程来帮助您完成第一步。有一些关于如何设置robot_localization包的很好的例子，但是它们需要好的工作硬件。本教程将使用turtlesim包作为虚拟机器人，试图弥补这一不足。
